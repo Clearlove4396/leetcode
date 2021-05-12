@@ -334,3 +334,61 @@ public:
 };
 ```
 
+
+
+# 滑动窗口
+
+所谓滑动窗口，**就是不断的调节子序列的起始位置和终止位置，从而得出我们要想的结果**。
+
+
+
+==关注3点：==
+
+- **窗口中的内容**     `while(t >= target && l < r)`
+- **右边界，向窗口中加入元素**    `while(r < nums.size())`
+- **左边界，在满足窗口内容的情况下，缩小窗口**     `t -= nums[l++]`
+
+
+
+## 209.长度最小的子数组
+
+
+
+```c++
+class Solution {
+public:
+    int minSubArrayLen(int target, vector<int>& nums) {
+        int res = nums.size() + 1;
+
+        int l = 0, r = 0;
+        int t = 0;
+        while(r < nums.size()) {
+            t += nums[r];
+            r++;
+
+            while(t >= target && l < r) {
+                res = std::min(res, r - l);
+                t -= nums[l++];
+            }
+        }
+        if(res == nums.size() + 1)
+            return 0;
+        return res;
+    }
+};
+```
+
+
+
+## 904.水果成篮
+
+
+
+
+
+
+
+
+
+## 76.最小覆盖子串
+
