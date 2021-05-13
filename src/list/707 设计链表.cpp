@@ -1,52 +1,7 @@
 
 
-## 203.移除链表元素
-
-增加**虚拟头结点**`ListNode* dummy = new ListNode(0, head);`，可以使`head`节点和后面的节点按照相同的算法处理。
-
-```c++
-struct ListNode {
-    int val;
-    ListNode *next;
-    ListNode() : val(0), next(nullptr) {}
-    ListNode(int x) : val(x), next(nullptr) {}
-    ListNode(int x, ListNode *next) : val(x), next(next) {}
-};
-
-class Solution {
-public:
-    ListNode* removeElements(ListNode* head, int val) {
-        ListNode* dummy = new ListNode(0, head);
-
-        ListNode* p = dummy;
-        while(p->next != nullptr) {
-            if(p->next->val == val) {
-                p->next = p->next->next;
-                
-                // ListNode *tmp = p->next;
-                // p->next = tmp->next;
-                // free(tmp);
-            }
-            else {
-                p = p->next;
-            }
-        }
-        return dummy->next;
-    }
-};
-```
 
 
-
-## 707.设计链表
-
-链表的插入、删除等操作
-
-
-
-只增加虚拟头结点`dummy`就好了，千万别加尾节点`rear`:frowning_face:
-
-```c++
 class MyLinkedList {
 public:
 
@@ -139,5 +94,3 @@ private:
  * obj->addAtIndex(index,val);
  * obj->deleteAtIndex(index);
  */
-```
-
