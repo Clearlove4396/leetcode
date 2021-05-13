@@ -336,47 +336,59 @@ public:
 
 
 
-## 977.有序数组的平方
+# 滑动窗口
 
-先找到绝对值最小的点，然后使用双指针，从该点向两边扩展，加入到结果集中。
+所谓滑动窗口，**就是不断的调节子序列的起始位置和终止位置，从而得出我们要想的结果**。
+
+
+
+==关注3点：==
+
+- **窗口中的内容**     `while(t >= target && l < r)`
+- **右边界，向窗口中加入元素**    `while(r < nums.size())`
+- **左边界，在满足窗口内容的情况下，缩小窗口**     `t -= nums[l++]`
+
+
+
+## 209.长度最小的子数组
+
+
 
 ```c++
 class Solution {
 public:
-    vector<int> sortedSquares(vector<int>& nums) {
-        if(nums.size() == 0)
-            return {};
+    int minSubArrayLen(int target, vector<int>& nums) {
+        int res = nums.size() + 1;
 
-        vector<int> res;
-        int r = 0;
-        while(r < nums.size() && nums[r] <= 0)
-            r++;
-        int f = r - 1;
-        
-        while(f >= 0 && r < nums.size()) {
-            int nf = nums[f] * nums[f];
-            int nr = nums[r] * nums[r];
-
-            if(nf <= nr) {
-                res.push_back(nf);
-                f--;
-            }
-            else {
-                res.push_back(nr);
-                r++;
-            }
-        }
-
-        while(f >= 0) {
-            res.push_back(nums[f] * nums[f]);
-            f--;
-        }
+        int l = 0, r = 0;
+        int t = 0;
         while(r < nums.size()) {
-            res.push_back(nums[r] * nums[r]);
+            t += nums[r];
             r++;
+
+            while(t >= target && l < r) {
+                res = std::min(res, r - l);
+                t -= nums[l++];
+            }
         }
+        if(res == nums.size() + 1)
+            return 0;
         return res;
     }
 };
 ```
+
+
+
+## 904.水果成篮
+
+
+
+
+
+
+
+
+
+## 76.最小覆盖子串
 
