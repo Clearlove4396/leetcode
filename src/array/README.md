@@ -1,3 +1,7 @@
+[TOC]
+
+
+
 # 二分查找
 
 ## 704. 二分查找
@@ -464,4 +468,127 @@ public:
 
 
 ## 76.最小覆盖子串
+
+使用哈希表，判断窗口中的元素和目标窗口（t）中元素的关系
+
+```c++
+class Solution {
+public:
+    bool covered(unordered_map<char, int>& tmp, unordered_map<char, int>& wmp) {
+        for(auto it = tmp.begin(); it != tmp.end(); it++) {
+            if(wmp[it->first] < it->second)
+                return false;
+        }
+        return true;
+    }
+
+    string minWindow(string s, string t) {
+        string res = s + s;
+
+        unordered_map<char, int> tmp, wmp;
+        for(int i = 0; i < t.size(); i++) {
+            tmp[t[i]]++;
+        }
+
+        int l = 0, r = 0;
+        while(r < s.size()) {
+            wmp[s[r]]++;
+            r++;
+            
+            while(l < r && covered(tmp, wmp)) {
+                if(res.size() > r - l) {
+                    res = s.substr(l, r - l);
+                }
+                wmp[s[l]]--;
+                l++;
+            }
+        }
+        return (res == s + s)? "": res;
+    }
+};
+```
+
+
+
+# 模拟行为
+
+
+
+## 59.螺旋矩阵II
+
+使用`c`表示“现在转到第几圈了”
+
+```c++
+class Solution {
+public:
+    vector<vector<int>> generateMatrix(int n) {
+        vector<vector<int> > res(n, vector<int>(n));
+
+        int k = n * n;
+        int c = 0, r = 1;
+        while(r <= k) {
+            for(int j = c; j < n - c && r <= k; j++) {
+                res[c][j] = r++;
+            }
+            for(int i = c + 1; i < n - c && r <= k; i++) {
+                res[i][n-c-1] = r++;
+            }
+            for(int j = n - c - 2; j >= c && r <= k; j--) {
+                res[n-c-1][j] = r++;
+            }
+            for(int i = n - c - 2; i > c && r <= k; i--) {
+                res[i][c] = r++;
+            }
+            c++;
+        }
+        return res;
+    }
+};
+```
+
+
+
+## 54.螺旋矩阵
+
+
+
+```c++
+class Solution {
+public:
+    vector<int> spiralOrder(vector<vector<int>>& matrix) {
+        if(matrix.size() == 0 || matrix[0].size() == 0)
+            return {};
+
+        int m = matrix.size(), n = matrix[0].size();
+        vector<int> res;
+        int c = 0, k = m * n, r = 1;
+        while(r <= k) {
+            for(int j = c; j < n - c && r <= k; j++) {
+                res.push_back(matrix[c][j]);
+                r++;
+            }
+            for(int i = c + 1; i < m - c && r <= k; i++) {
+                res.push_back(matrix[i][n-c-1]);
+                r++;
+            }
+            for(int j = n - c - 2; j >= c && r <= k; j--) {
+                res.push_back(matrix[m-c-1][j]);
+                r++;
+            }
+            for(int i = m - c - 2; i >= c + 1 && r <= k; i--) {
+                res.push_back(matrix[i][c]);
+                r++;
+            }
+            c++;
+        }
+        return res;
+    }
+};
+```
+
+
+
+
+
+
 
