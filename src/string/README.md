@@ -165,3 +165,25 @@ public:
 };
 ```
 
+
+
+# 剑指Offer 58 II左旋转字符串
+
+```c++
+class Solution {
+public:
+    string reverseLeftWords(string s, int n) {
+        for(int i = 0, j = s.size() - 1; i < j; i++, j--) {
+            std::swap(s[i], s[j]);
+        }
+        for(int i = 0, j = s.size() - n - 1; i < j; i++, j--) {
+            std::swap(s[i], s[j]);
+        }
+        for(int i = s.size() - n, j = s.size() - 1; i < j; i++, j--) {
+            std::swap(s[i], s[j]);
+        }
+        return s;
+    }
+};
+```
+
