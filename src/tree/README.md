@@ -25,7 +25,11 @@
 
 
 
-# 144.二叉树的前序遍历
+# 二叉树的深度优先遍历
+
+
+
+## 144.二叉树的前序遍历
 
 递归 & 非递归
 
@@ -104,7 +108,7 @@ public:
 
 
 
-# 94.二叉树的中序遍历
+## 94.二叉树的中序遍历
 
 递归 & 非递归
 
@@ -168,7 +172,7 @@ public:
 
 
 
-# 145.二叉树的后序遍历
+## 145.二叉树的后序遍历
 
 递归 & 非递归
 
@@ -218,7 +222,41 @@ public:
 
 
 
+# 二叉树的层序遍历
 
+
+
+# 102.二叉树的层序遍历
+
+使用`queue`
+
+```c++
+class Solution {
+public:
+    vector<vector<int>> levelOrder(TreeNode* root) {
+        if(root == nullptr)
+            return {};
+
+        vector<vector<int> > res;
+        queue<TreeNode* > qu;
+        qu.push(root);
+        while(!qu.empty()) {
+            int size = qu.size();   // 记录每一层的个数
+            vector<int> tmp;
+            while(size--) {
+                TreeNode* top = qu.front();
+                qu.pop();
+
+                tmp.push_back(top->val);
+                if(top->left != nullptr)    qu.push(top->left);
+                if(top->right != nullptr)    qu.push(top->right);
+            }
+            res.push_back(tmp);
+        }
+        return res;
+    }
+};
+```
 
 
 
