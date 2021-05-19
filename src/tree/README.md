@@ -492,7 +492,50 @@ public:
 
 
 
+## 117.填充每个节点的下一个右侧节点指针II
 
+层序遍历方法同上
+
+
+
+**递归方法：**
+
+在连接`root`节点下一层的时候，可以通过`root->next`获取到`root`同一层的右侧节点。
+
+```c++
+class Solution {
+public:
+    Node* connect(Node* root) {
+        if(root == nullptr)
+            return nullptr;
+        
+        if(root->left != nullptr && root->right != nullptr)
+            root->left->next = root->right;
+
+        if(root->left != nullptr && root->right == nullptr)
+            root->left->next = getNext(root->next);
+
+        if(root->right != nullptr)
+            root->right->next = getNext(root->next);
+
+        connect(root->right);
+        connect(root->left);
+        return root;
+    }
+
+    Node* getNext(Node* root) {
+        if(root == nullptr)
+            return nullptr;
+        if(root->left != nullptr)
+            return root->left;
+        if(root->right != nullptr)
+            return root->right;
+        if(root->next != nullptr)
+            return getNext(root->next);
+        return nullptr;
+    }
+};
+```
 
 
 
