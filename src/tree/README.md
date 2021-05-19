@@ -226,7 +226,7 @@ public:
 
 
 
-# 102.二叉树的层序遍历
+## 102.二叉树的层序遍历
 
 使用`queue`
 
@@ -260,13 +260,235 @@ public:
 
 
 
+## 107.二叉树的层次遍历II
 
 
 
+```c++
+class Solution {
+public:
+    vector<vector<int>> levelOrderBottom(TreeNode* root) {
+        if(root == nullptr)
+            return {};
+
+        vector<vector<int> > res;
+
+        queue<TreeNode* > qu;
+        qu.push(root);
+        while(!qu.empty()) {
+            int size = qu.size();
+            vector<int> tmp;
+            while(size--) {
+                TreeNode* top = qu.front();
+                qu.pop();
+
+                tmp.push_back(top->val);
+                if(top->left != nullptr)    qu.push(top->left);
+                if(top->right != nullptr)    qu.push(top->right);
+            }
+            res.push_back(tmp);
+        }
+        reverse(res.begin(), res.end());
+        return res;
+    }
+};
+```
 
 
 
+## 199.二叉树的右视图
 
+
+
+```c++
+class Solution {
+public:
+    vector<int> rightSideView(TreeNode* root) {
+        if(root == nullptr)
+            return {};
+        vector<int> res;
+        queue<TreeNode* > qu;
+
+        qu.push(root);
+        while(!qu.empty()) {
+            int size = qu.size();
+            while(size--) {
+                auto top = qu.front();
+                qu.pop();
+                if(top->left != nullptr)    qu.push(top->left);
+                if(top->right != nullptr)   qu.push(top->right);
+                if(size == 0)
+                    res.push_back(top->val);
+            }
+        }
+        return res;
+    }
+};
+```
+
+
+
+## 637.二叉树的层平均值
+
+```c++
+class Solution {
+public:
+    vector<double> averageOfLevels(TreeNode* root) {
+        if(root == nullptr)
+            return {};
+        
+        queue<TreeNode* > qu;
+        vector<double> res;
+
+        qu.push(root);
+        while(!qu.empty()) {
+            int size = qu.size();
+            double t = 0;
+            while(size--) {
+                auto top = qu.front();
+                qu.pop();
+                t += top->val;
+                if(top->left)   qu.push(top->left);
+                if(top->right)  qu.push(top->right);
+            }
+            res.push_back(t / size);
+        }
+        return res;
+    }
+};
+```
+
+
+
+## 429.N叉树的层序遍历
+
+```c++
+class Solution {
+public:
+    vector<vector<int>> levelOrder(Node* root) {
+        if(root == nullptr)
+            return {};
+        
+        vector<vector<int> > res;
+        queue<Node* > qu;
+        qu.push(root);
+        while(!qu.empty()) {
+            int size = qu.size();
+            vector<int> tmp;
+            while(size--) {
+                auto top = qu.front();
+                qu.pop();
+                tmp.push_back(top->val);
+                for(Node* node: top->children) {
+                    qu.push(node);
+                }
+            }
+            res.push_back(tmp);
+        }
+        return res;
+    }
+};
+```
+
+## 515.在每个树行中找最大值
+
+```c++
+class Solution {
+public:
+    vector<int> largestValues(TreeNode* root) {
+        if(root == nullptr)
+            return {};
+        
+        queue<TreeNode* > qu;
+        vector<int> res;
+        qu.push(root);
+        while(!qu.empty()) {
+            int size = qu.size();
+            int maxVal = INT_MIN;
+            while(size--) {
+                auto top = qu.front();
+                qu.pop();
+                if(top->val > maxVal)
+                    maxVal = top->val;
+                if(top->left != nullptr)
+                    qu.push(top->left);
+                if(top->right != nullptr)
+                    qu.push(top->right);
+            }
+            res.push_back(maxVal);
+        }
+        return res;
+    }
+};
+```
+
+
+
+## 116.填充每个节点的下一个右侧节点指针
+
+层序遍历方法
+
+```c++
+class Solution {
+public:
+    Node* connect(Node* root) {
+        if(root == nullptr)
+            return nullptr;
+        
+        queue<Node* > qu;
+        qu.push(root);
+        while(!qu.empty()) {
+            int size = qu.size();
+            while(size--) {
+                auto top = qu.front();
+                qu.pop();
+                if(size != 0) {
+                    top->next = qu.front();
+                }
+                if(top->left != nullptr)
+                    qu.push(top->left);
+                if(top->right != nullptr)
+                    qu.push(top->right);
+            }
+        }
+        return root;
+    }
+};
+```
+
+
+
+递归方法
+
+此时空间复杂度为$O(1)$，满足题目要求
+
+```c++
+class Solution {
+public:
+    
+    void func(Node* l, Node* r){
+        if(l == nullptr && r == nullptr)
+            return;
+        if(l != nullptr){
+            l->next = r;
+            func(l->left, l->right);
+        }
+        if(r != nullptr){
+            func(r->left, r->right);
+        }
+        if(l != nullptr && r != nullptr)
+            func(l->right, r->left);
+    }
+    
+    
+    Node* connect(Node* root) {
+        if(root == nullptr)
+            return nullptr;
+        func(nullptr, root);
+        return root;
+    }
+};
+```
 
 
 
