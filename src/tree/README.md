@@ -539,13 +539,200 @@ public:
 
 
 
+# 101.对称二叉树
+
+递归
+
+```c++
+class Solution {
+public:
+    bool func(TreeNode* l, TreeNode* r) {
+        if(l == nullptr && r == nullptr)
+            return true;
+        
+        // if(l == nullptr && r != nullptr || l != nullptr && r == nullptr)
+        //     return false;
+        
+        // if(l->val != r->val)
+        //     return false;
+
+        if(l == nullptr || r == nullptr || l->val != r->val)
+            return false;
+        
+        return func(l->left, r->right) && func(l->right, r->left);
+    }
+
+    bool isSymmetric(TreeNode* root) {
+        if(root == nullptr)
+            return true;
+        
+        return func(root, root);
+    }
+};
+```
 
 
 
+迭代
+
+使用`#`替代空节点。
+
+```c++
+class Solution {
+public:
+
+    bool isSymmetric(TreeNode* root) {
+        if(root == nullptr)
+            return true;
+        
+        queue<TreeNode* > qu;
+        qu.push(root);
+        bool flag = true;
+        while(!qu.empty() && flag) {
+            int size = qu.size();
+            vector<string> tmp;
+            while(size--) {
+                auto top = qu.front();
+                qu.pop();
+                if(top == nullptr) {
+                    tmp.push_back("#");
+                    continue;
+                }
+                flag = true;
+                qu.push(top->left);
+                qu.push(top->right);
+                tmp.push_back(to_string(top->val));
+            }
+
+            for(int i = 0, j = tmp.size() - 1; i < j; i++, j--) {
+                if(tmp[i] != tmp[j])
+                    return false;
+            }
+        }
+        return true;
+    }
+};
+```
+
+迭代
+
+不保存空节点
+
+```java
+class Solution {
+    public boolean isSymmetric(TreeNode root) {
+        if (root == null) {
+            return true;
+        }
+        
+        Queue<TreeNode> queue = new LinkedList<>();
+        queue.offer(root.left);
+        queue.offer(root.right);
+
+        while (!queue.isEmpty()) {
+            TreeNode node1 = queue.poll();
+            TreeNode node2 = queue.poll();
+            if (node1 == null && node2 == null) {
+                continue;
+            }
+            if (node1 == null || node2 == null || node1.val != node2.val) {
+                return false;
+            }
+            queue.offer(node1.left);
+            queue.offer(node2.right);
+            queue.offer(node1.right);
+            queue.offer(node2.left);
+        }
+
+        return true;
+    }
+}
+```
 
 
 
+# 104.二叉树的最大深度
 
+递归
+
+```c++
+class Solution {
+public:
+    int maxDepth(TreeNode* root) {
+        if(root == nullptr)
+            return 0;
+        return 1 + std::max(maxDepth(root->left), maxDepth(root->right));
+    }
+};
+```
+
+迭代：层次遍历，对层数进行计数就好了。
+
+
+
+# 559.N叉树的最大深度
+
+递归
+
+```c++
+class Solution {
+public:
+    int maxDepth(Node* root) {
+        if(root == nullptr)
+            return 0;
+        int max = 0;
+        for(int i = 0; i < root->children.size(); i++) {
+            max = std::max(max, maxDepth((root->children)[i]));
+        }
+        return 1 + max;
+    }
+};
+```
+
+
+
+迭代：层序遍历
+
+**迭代**：基于栈的迭代的后序遍历。`dep`记录局部最优解，`res`记录全局最优解。
+
+```c++
+class Solution {
+public:
+
+    typedef struct st_node{
+        Node* pointer;
+        bool flag;
+        st_node(Node* p): pointer(p), flag(false){}
+    };
+
+    int maxDepth(Node* root) {
+        if(root == nullptr)
+            return 0;
+        
+        stack<st_node> stk;
+        stk.push(st_node(root));
+        int res = 0;
+        int dep = 0;
+        while(!stk.empty()) {
+            auto top = stk.top();
+            stk.pop();
+            if(top.flag == false) {
+                top.flag = true;
+                stk.push(top);
+                for(auto pointer: top.pointer->children) {
+                    stk.push(st_node(pointer));
+                }
+                dep++;
+            }
+            else {
+                res = std::max(res, dep);
+                dep--;
+            }
+        }
+        return res;
+    }
+};
+```
 
 
 
