@@ -1278,11 +1278,64 @@ public:
 
 
 
-
-
-
-
 # 二叉树的修改和构造
+
+## 106.从中序与后序遍历序列构造二叉树
+
+```c++
+class Solution {
+public:
+    TreeNode* func(vector<int>& inorder, vector<int>& postorder, int li, int ri, int lp, int rp) {
+        if(li > ri)
+            return nullptr;
+        
+        TreeNode* node = new TreeNode(postorder[rp]);
+        int i = li;
+        while(i < ri && inorder[i] != postorder[rp])
+            i++;
+        node->left = func(inorder, postorder, li, i - 1, lp, lp + (i - li) - 1);
+        node->right = func(inorder, postorder, i + 1, ri, lp + (i - li), rp - 1);
+        return node;
+    }
+
+    TreeNode* buildTree(vector<int>& inorder, vector<int>& postorder) {
+        if(inorder.size() == 0)
+            return nullptr;
+        
+        return func(inorder, postorder, 0, inorder.size() - 1, 0, postorder.size() - 1);
+    }
+};
+```
+
+
+
+## 105.从前序与中序遍历序列构造二叉树
+
+```c++
+class Solution {
+public:
+
+    TreeNode* func(vector<int>& preorder, vector<int>& inorder, int lp, int rp, int li, int ri) {
+        if(lp > rp)
+            return nullptr;
+
+        TreeNode* node = new TreeNode(preorder[lp]);
+        int i = li;
+        while(i < rp && preorder[lp] != inorder[i])
+            i++;
+        node->left = func(preorder, inorder, lp + 1, lp + (i - li), li, i - 1);
+        node->right = func(preorder, inorder, lp + (i - li) + 1, rp, i + 1, ri);
+        return node;
+    }
+
+    TreeNode* buildTree(vector<int>& preorder, vector<int>& inorder) {
+        if(preorder.size() == 0)
+            return nullptr;
+
+        return func(preorder, inorder, 0, preorder.size() - 1, 0, inorder.size() - 1);
+    }
+};
+```
 
 
 
