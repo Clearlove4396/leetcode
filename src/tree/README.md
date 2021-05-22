@@ -1064,7 +1064,229 @@ public:
 
 
 
+## 404.左叶子之和
+
+
+
+```c++
+class Solution {
+public:
+    int sumOfLeftLeaves(TreeNode* root) {
+        if(root == nullptr)
+            return 0;
+        if(root->left == nullptr)
+            return sumOfLeftLeaves(root->right);
+
+        if(root->left->left == nullptr && root->left->right == nullptr)
+            return root->left->val + sumOfLeftLeaves(root->right);
+        else
+            return sumOfLeftLeaves(root->left) + sumOfLeftLeaves(root->right);
+    }
+};
+```
+
+
+
+
+
+## 513.找树左下角的值
+
+层序遍历
+
+```c++
+class Solution {
+public:
+    int findBottomLeftValue(TreeNode* root) {
+        queue<TreeNode* >qu;
+        qu.push(root);
+        int res;
+        while(!qu.empty()) {
+            int size = qu.size();
+            bool update = false;
+            while(size--) {
+                auto top = qu.front();
+                qu.pop();
+                if(!update) {
+                    update = true;
+                    res = top->val;
+                }
+                if(top->left)
+                    qu.push(top->left);
+                if(top->right)
+                    qu.push(top->right);
+            }
+            update = false;
+        }
+        return res;
+    }
+};
+```
+
+
+
+深度优先搜索：迭代，先序遍历
+
+```c++
+class Solution {
+public:
+    int findBottomLeftValue(TreeNode* root) {
+        stack<pair<TreeNode*, bool> > stk;
+        stk.push(make_pair(root, false));
+        
+        int curdep = 0;
+        int maxdep = 0;
+        int res = root->val;
+
+        while(!stk.empty()) {
+            auto top = stk.top();
+            stk.pop();
+
+            if(top.second == false) {
+                top.second = true;
+                stk.push(top);
+                if((top.first)->right)
+                    stk.push(make_pair((top.first)->right, false));
+                if((top.first)->left)
+                    stk.push(make_pair((top.first)->left, false));
+                
+                curdep++;
+            }
+            else {
+                if(maxdep < curdep) {
+                    maxdep = curdep;
+                    res = (top.first)->val;
+                }
+                curdep--;
+            }
+        }
+        return res;
+    }
+};
+```
+
+
+
+**深度优先遍历：使用`dep`记录当前遍历的深度**
+
+```c++
+class Solution {
+public:
+    int maxdep = INT_MIN;
+    int res;
+
+    int findBottomLeftValue(TreeNode* root) {
+        dfs(root, 0);
+        return res;
+    }
+
+    void dfs(TreeNode* root, int dep) {
+        if(root == nullptr)
+            return;
+        
+        if(root->left == nullptr && root->right == nullptr) {
+            if(dep > maxdep) {
+                maxdep = dep;
+                res = root->val;
+            }
+        }
+        dfs(root->left, dep + 1);
+        dfs(root->right, dep + 1);
+    }
+};
+```
+
+
+
+
+
+## 112.路径总和
+
+递归函数，什么时候需要返回值，什么时候不需要呢？
+
+**如果需要搜索整颗二叉树，那么递归函数就不要返回值，如果要搜索其中一条符合条件的路径，递归函数就需要返回值，因为遇到符合条件的路径了就要及时返回。**
+
+上面的话copy自：https://github.com/youngyangyang04/leetcode-master/blob/master/problems/0112.%E8%B7%AF%E5%BE%84%E6%80%BB%E5%92%8C.md
+
+感觉还是要靠自己体会吧，不需要死搬硬套。不过有了这句话，可以给自己一个指引，
+
+```c++
+class Solution {
+public:
+
+    void func(TreeNode* root, int& targetSum, bool& res) {
+        if(root == nullptr)
+            return;
+        if(res == true)
+            return;
+
+        if(targetSum == 0 && root->left == nullptr && root->right == nullptr) {
+            res = true;
+            return;
+        }
+
+        targetSum -= root->val;
+        func(root->left, targetSum, res);
+        if(res == false)
+            func(root->right, targetSum, res);
+        
+        targetSum += root->val;
+    }
+
+    bool hasPathSum(TreeNode* root, int targetSum) {
+        bool res = false;
+        func(root, targetSum, res);
+        return res;
+    }
+};
+```
+
+
+
+## 113.路径总和II
+
+递归+回溯
+
+```c++
+class Solution {
+public:
+
+    void func(TreeNode* root, int targetSum, vector<vector<int> >& res, vector<int>& path) {
+        if(root == nullptr)
+            return;
+        
+        if(root->left == nullptr && root->right == nullptr && root->val == targetSum) {
+            path.push_back(root->val);
+            res.push_back(path);
+            path.pop_back();
+            return;
+        }
+        path.push_back(root->val);
+        func(root->left, targetSum - root->val, res, path);
+        func(root->right, targetSum - root->val, res, path);
+        path.pop_back();
+    }
+    vector<vector<int>> pathSum(TreeNode* root, int targetSum) {
+        vector<vector<int> > res;
+        vector<int> path;
+        
+        func(root, targetSum, res, path);
+
+        return res;
+    }
+};
+```
+
+
+
+
+
+
+
 # 二叉树的修改和构造
+
+
+
+
 
 
 
