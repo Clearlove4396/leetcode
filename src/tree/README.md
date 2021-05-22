@@ -736,6 +736,356 @@ public:
 
 
 
+# 111.二叉树的最小深度
+
+递归
+
+```c++
+class Solution {
+public:
+    int minDepth(TreeNode* root) {
+        if(root == nullptr)
+            return 0;
+        
+        if(root->left == nullptr && root->right == nullptr)
+            return 1;
+        int leftDep = minDepth(root->left);
+        int rightDep = minDepth(root->right);
+
+        if(root->left != nullptr && root->right == nullptr)
+            return 1 + leftDep;
+        if(root->left == nullptr && root->right != nullptr)
+            return 1 + rightDep;
+        
+        return 1 + std::min(leftDep, rightDep);
+    }
+};
+```
+
+
+
+深度优先遍历：使用`stack`的迭代版
+
+```c++
+class Solution {
+public:
+    int minDepth(TreeNode* root) {
+        if(root == nullptr)
+            return 0;
+        
+        stack<pair<TreeNode*, bool> > stk;
+        stk.push(make_pair(root, false));
+        int res = INT_MAX;
+        int dep = 0;
+        while(!stk.empty()) {
+            auto top = stk.top();
+            stk.pop();
+            if(top.second == false) {
+                top.second = true;
+                stk.push(top);
+                if((top.first)->left != nullptr)
+                    stk.push(make_pair((top.first)->left, false));
+                if((top.first)->right != nullptr)
+                    stk.push(make_pair((top.first)->right, false));
+                dep++;
+            }
+            else {
+                if((top.first)->left == nullptr && (top.first)->right == nullptr) {
+                    res = std::min(res, dep);
+                }
+                dep--;
+            }
+        }
+        return res;
+    }
+};
+```
+
+
+
+或者使用层序遍历：当第一次出现`left == nullptr && right == nullptr`的节点时，返回结果。
+
+```c++
+class Solution {
+public:
+    int minDepth(TreeNode* root) {
+        if(root == nullptr)
+            return 0;
+
+        queue<TreeNode* > qu;
+        qu.push(root);
+        int res = 0;
+        while(!qu.empty()) {
+            int size = qu.size();
+            res++;
+            while(size--) {
+                auto top = qu.front();
+                qu.pop();
+                if(top->left == nullptr && top->right == nullptr)
+                    return res;
+                if(top->left != nullptr)
+                    qu.push(top->left);
+                if(top->right != nullptr)
+                    qu.push(top->right);
+            }
+        }
+        return res;
+    }
+};
+```
+
+
+
+# 222.完全二叉树的节点个数
+
+递归：遍历所有节点，时间复杂度$O(n)$
+
+```c++
+class Solution {
+public:
+    int countNodes(TreeNode* root) {
+        if(root == nullptr)
+            return 0;
+        
+        return 1 + countNodes(root->left) + countNodes(root->right);
+    }
+};
+```
+
+
+
+根据完全二叉树的性质：完全二叉树   满二叉树
+
+时间复杂度$O(logn·logn)$
+
+![copy自代码随想录](https://camo.githubusercontent.com/5d85c9f8df419ce8db22f668ff22f7a3ae55660b8e9bead3b98e2d8cdd69ac9c/68747470733a2f2f696d672d626c6f672e6373646e696d672e636e2f32303230313132343039323534333636322e706e67)
+
+
+
+![](https://camo.githubusercontent.com/9dda2135e7216b78bcd3d71377dfa37ae7dc8b262add58376383c58db9e3c97a/68747470733a2f2f696d672d626c6f672e6373646e696d672e636e2f32303230313132343039323633343133382e706e67)
+
+
+
+```c++
+class Solution {
+public:
+
+    int countNodes(TreeNode* root) {
+        if(root == nullptr)
+            return 0;
+        
+        int ldep = 0, rdep = 0;
+        TreeNode* lnode = root->left;
+        while(lnode) {
+            lnode = lnode->left;
+            ldep++;
+        }
+        TreeNode* rnode = root->right;
+        while(rnode) {
+            rnode = rnode->right;
+            rdep++;
+        }
+		// 2: 0010
+        if(ldep == rdep)
+            return (2 << ldep) - 1;
+        return 1 + countNodes(root->left) + countNodes(root->right);
+    }
+};
+```
+
+
+
+# 110.平衡二叉树
+
+递归：后序遍历，时间复杂度$O(n)$
+
+`depthAndBalance`函数既可以获得高度（通过返回值），又可以判断现在是否平衡（`bool& res`)。也可以通过返回`-1`来判断是否平衡。
+
+```c++
+class Solution {
+public:
+
+    int depthAndBalance(TreeNode* root, bool& res) {
+        if(root == nullptr)
+            return 0;
+        
+        int leftDep = depthAndBalance(root->left, res);
+        int rightDep = depthAndBalance(root->right, res);
+        if(abs(leftDep - rightDep) > 1)
+            res = false;
+        
+        return std::max(leftDep, rightDep) + 1;
+    }
+
+    bool isBalanced(TreeNode* root) {
+        if(root == nullptr)
+            return true;
+        
+        bool res = true;
+        depthAndBalance(root, res);
+        return res;
+    }
+};
+```
+
+
+
+```c++
+class Solution {
+public:
+
+    int depthAndBalance(TreeNode* root) {
+        if(root == nullptr)
+            return 0;
+        
+        int leftDep = depthAndBalance(root->left);
+        int rightDep = depthAndBalance(root->right);
+        if(leftDep == -1 || rightDep == -1 || abs(leftDep - rightDep) > 1)
+            return -1;
+        
+        return std::max(leftDep, rightDep) + 1;
+    }
+
+    bool isBalanced(TreeNode* root) {
+        if(root == nullptr)
+            return true;
+        
+        int res = depthAndBalance(root);
+        return res == -1? false: true;
+    }
+};
+```
+
+
+
+# 257.二叉树的所有路径
+
+深度优先遍历：前序遍历
+
+使用`string&& ss`可以不`pop_back()`
+
+`string&& `可以想象成**临时的，即将消亡的**。
+
+```c++
+class Solution {
+public:
+    void func(TreeNode* root, vector<string>& res, string&& ss) {
+        if(root == nullptr)
+            return;
+
+        if(root->left == nullptr && root->right == nullptr) {
+            res.push_back(ss + "->" + to_string(root->val));
+            return;
+        }
+
+        func(root->left, res, ss + "->" + to_string(root->val));
+        func(root->right, res, ss + "->" + to_string(root->val));
+    }
+
+    vector<string> binaryTreePaths(TreeNode* root) {
+        if(root == nullptr)
+            return {};
+        if(root->left == nullptr && root->right == nullptr)
+            return {to_string(root->val)};
+
+        vector<string> res;
+        func(root->left, res, to_string(root->val));
+        func(root->right, res, to_string(root->val));
+        return res;
+    }
+};
+```
+
+
+
+# 100.相同的树
+
+利用短路特性
+
+```c++
+if(p == nullptr && q == nullptr)
+	return true;
+if(p == nullptr || q == nullptr || p->val != q->val)
+	return false;
+```
+
+
+
+```c++
+class Solution {
+public:
+    bool isSameTree(TreeNode* p, TreeNode* q) {
+        if(p == nullptr && q == nullptr)
+            return true;
+        if(p == nullptr || q == nullptr || p->val != q->val)
+            return false;
+        
+        return isSameTree(p->left, q->left) && isSameTree(p->right, q->right);
+    }
+};
+```
+
+
+
+# 572.另一个树的子树
+
+嵌套的两次前序遍历
+
+```c++
+class Solution {
+public:
+
+    bool func(TreeNode* root, TreeNode* subRoot) {
+        if(root == nullptr && subRoot == nullptr)
+            return true;
+        if(root == nullptr || subRoot == nullptr || root->val != subRoot->val)
+            return false;
+        
+        return func(root->left, subRoot->left) && func(root->right, subRoot->right);
+    }
+
+    bool isSubtree(TreeNode* root, TreeNode* subRoot) {
+        if(root == nullptr && subRoot == nullptr ||
+         root != nullptr && subRoot == nullptr)
+            return true;
+        if(root == nullptr && subRoot != nullptr)
+            return false;
+
+        return func(root, subRoot) ||
+             isSubtree(root->left, subRoot) ||
+             isSubtree(root->right, subRoot);
+    }
+};
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
