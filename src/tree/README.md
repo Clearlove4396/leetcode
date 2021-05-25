@@ -1499,11 +1499,122 @@ public:
 
 
 
+递归
+
+遍历到每个节点之前，需要记住该节点值应该在的范围。向左时，缩小最大值，向右时，增大最小值。
+
+```c++
+class Solution {
+public:
+    bool func(TreeNode* root, long long min, long long max) {
+        if(root == nullptr)
+            return true;
+        if(root->val <= min || root->val >= max)
+            return false;
+        
+        return func(root->left, min, root->val)
+             && func(root->right, root->val, max);
+        
+    }
+
+    bool isValidBST(TreeNode* root) {
+        if(root == nullptr)
+            return true;
+
+        long long min = INT_MIN;
+        long long max = INT_MAX;
+
+        return func(root, min - 1, max + 1);
+    }
+};
+```
 
 
 
+## 530.二叉搜索树的最小绝对差
 
-## 530
+中序遍历，序列是单调递增的，在出栈的时候，计算绝对值的最小值
+
+```c++
+class Solution {
+public:
+    int getMinimumDifference(TreeNode* root) {
+        int f, r, res = INT_MAX;
+        int c = 0;
+
+        stack<pair<TreeNode*, bool> > stk;
+        stk.push(make_pair(root, false));
+        while(!stk.empty()) {
+            auto top = stk.top();
+            stk.pop();
+            if(top.second == false) {
+                if((top.first)->left)
+                    stk.push(make_pair((top.first)->left, false));
+                stk.push(make_pair(top.first, true));
+                if((top.first)->right)
+                    stk.push(make_pair((top.first)->right, false));
+            }
+            else {
+                if(c > 1) {
+                    if(res > abs(r - f))
+                        res = abs(r - f);
+                    f = r;
+                    r = (top.first)->val;
+                }
+                else if(c == 0){
+                    c++;
+                    f = (top.first)->val;
+                }
+                else {
+                    c++;
+                    r = (top.first)->val;
+                }
+            }
+        }
+        return abs(r - f) > res? res: abs(r - f);
+    }
+};
+```
+
+
+
+递归：中序遍历
+
+题目中规定：每个节点的值是非负的。
+
+```c++
+class Solution {
+public:
+    void func(TreeNode* root, int& f, int& r, int& res) {
+        if(root == nullptr)
+            return;
+        
+        func(root->left, f, r, res);
+
+        if(f == -1)
+            f = root->val;
+        else if(r == -1)
+            r = root->val;
+        else {
+            if(res > abs(r - f))
+                res = abs(r - f);
+            f = r;
+            r = root->val;
+        }
+        func(root->right, f, r, res);
+    }
+
+    int getMinimumDifference(TreeNode* root) {
+        int res = INT_MAX;
+        int f = -1, r = -1;
+
+        func(root, f, r, res);
+        return res > abs(r - f)? abs(r - f): res;
+    }
+};
+```
+
+
 
 
 
