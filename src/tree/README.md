@@ -1339,11 +1339,197 @@ public:
 
 
 
+## 654.最大二叉树
 
+```c++
+class Solution {
+public:
+    TreeNode* func(vector<int>& nums, int l, int r) {
+        if(l > r)
+            return nullptr;
+        int idx = l;
+        int max = -1;
+        for(int i = l; i <= r; i++) {
+            if(max < nums[i]) {
+                max = nums[i];
+                idx = i;
+            }
+        }
+
+        TreeNode* root = new TreeNode(nums[idx]);
+        root->left = func(nums, l, idx - 1);
+        root->right = func(nums, idx + 1, r);
+
+        return root;
+    }
+    
+    TreeNode* constructMaximumBinaryTree(vector<int>& nums) {
+        if(nums.size() == 0)
+            return nullptr;
+
+        return func(nums, 0, nums.size() - 1);
+    }
+};
+```
+
+
+
+## 617.合并二叉树
+
+```c++
+class Solution {
+public:
+    void func(TreeNode* root1, TreeNode* root2) {
+        if(root1 == nullptr || root2 == nullptr)
+            return;
+            
+        if(root1->left == nullptr) {
+            root1->left = root2->left;
+            root2->left = nullptr;
+        }
+        else if(root2->left != nullptr) {
+            root1->left->val += root2->left->val;
+        }
+
+        if(root1->right == nullptr) {
+            root1->right = root2->right;
+            root2->right = nullptr;
+        }
+        else if(root2->right != nullptr) {
+            root1->right->val += root2->right->val;
+        }
+
+        func(root1->left, root2->left);
+        func(root1->right, root2->right);
+    }
+
+    TreeNode* mergeTrees(TreeNode* root1, TreeNode* root2) {
+        if(root1 == nullptr)
+            return root2;
+        if(root2 == nullptr)
+            return root1;
+
+        root1->val += root2->val;
+        func(root1, root2);
+        
+        return root1;
+    }
+};
+```
+
+
+
+```c++
+class Solution {
+public:
+    TreeNode* mergeTrees(TreeNode* t1, TreeNode* t2)
+    {
+        if(t1 == NULL)
+            return t2;
+        if(t2 == NULL)
+            return t1;
+
+        t1->val = t1->val + t2->val;
+        t1->left = mergeTrees(t1->left, t2->left);
+        t1->right = mergeTrees(t1->right, t2->right);
+
+        return t1;
+    }
+};
+```
 
 
 
 # 二叉搜索树的属性
+
+二叉搜索树是一个有序树：
+
+- 若它的左子树不空，则左子树上所有结点的值均小于它的根结点的值；
+- 若它的右子树不空，则右子树上所有结点的值均大于它的根结点的值；
+- 它的左、右子树也分别为二叉搜索树
+
+
+
+## 700.二叉搜索树中的搜索
+
+```c++
+class Solution {
+public:
+    TreeNode* searchBST(TreeNode* root, int val) {
+        if(root == nullptr)
+            return nullptr;
+        if(root->val == val)
+            return root;
+        if(root->val > val)
+            return searchBST(root->left, val);
+        return searchBST(root->right, val);
+    }
+};
+```
+
+
+
+## 98.验证二叉搜索树
+
+可以先获得中序遍历序列，然后判断该序列是否单调递增
+
+```c++
+class Solution {
+public:
+
+    void func(TreeNode* root, vector<int>& res) {
+        if(root != nullptr) {
+            func(root->left, res);
+            res.push_back(root->val);
+            func(root->right, res);
+        }
+    }
+    bool isValidBST(TreeNode* root) {
+        vector<int> res;
+        func(root, res);
+
+        for(int i = 0; i < res.size() - 1; i++) {
+            if(res[i] >= res[i + 1])
+                return false;
+        }
+        return true;
+    }
+};
+```
+
+
+
+
+
+
+
+## 530
+
+
+
+
+
+
+
+## 501
+
+
+
+
+
+
+
+## 538
+
+
+
+
+
+
+
+
+
+
 
 
 
