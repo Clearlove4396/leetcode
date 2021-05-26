@@ -1616,31 +1616,123 @@ public:
 
 
 
+## 501.二叉搜索树中的众数
+
+一个简单的思路
+
+```c++
+class Solution {
+public:
+
+    void func(TreeNode* root, unordered_map<int, int>& mp) {
+        if(root == nullptr)
+            return;
+        func(root->left, mp);
+        func(root->right, mp);
+        mp[root->val]++;
+    }
+
+    vector<int> findMode(TreeNode* root) {
+        unordered_map<int, int> mp;
+        func(root, mp);
+
+        int max = -1;
+        for(auto it = mp.begin(); it != mp.end(); it++) {
+            if(max < it->second)
+                max = it->second;
+        }
+
+        vector<int> res;
+        for(auto it = mp.begin(); it != mp.end(); it++) {
+            if(it->second == max)
+                res.push_back(it->first);
+        }
+        return res;
+    }
+};
+```
 
 
 
+**二叉搜索树  <<===\==>> 中序遍历**！！！！！
+
+下面的代码参考自：https://leetcode-cn.com/problems/find-mode-in-binary-search-tree/solution/501-er-cha-sou-suo-shu-zhong-de-zhong-shu-bao-li-t/
+
+```c++
+class Solution {
+public:
+    int count;
+    int maxCount;
+    TreeNode* pre;
+    vector<int> res;
+
+    void searchBST(TreeNode* root) {
+        if(root == nullptr)
+            return;
+        
+        searchBST(root->left);
+
+        if(pre == nullptr || pre->val == root->val) {
+            count++;
+        }
+        else {
+            count = 1;
+        }
+        pre = root;
+        if(count == maxCount) {
+            res.push_back(root->val);
+        }
+        if(count > maxCount) {
+            maxCount = count;
+            res.clear();
+            res.push_back(root->val);
+        }
+
+        searchBST(root->right);
+    }
+
+    vector<int> findMode(TreeNode* root) {
+        count = 0;
+        maxCount = 0;
+        pre = nullptr;
+        res.clear();
+
+        searchBST(root);
+        return res;
+    }
+};
+```
 
 
 
-## 501
+## 538.把二叉搜索树转换为累加树
 
+**看到二叉搜索树就想到中序遍历！！**
 
+```c++
+class Solution {
+public:
 
+    void func(TreeNode* root, int& cur) {
+        if(root == nullptr)
+            return;
 
+        func(root->right, cur);
 
+        int t = root->val;
+        root->val += cur;
+        cur += t;
 
+        func(root->left, cur);
+    }
 
-## 538
-
-
-
-
-
-
-
-
-
-
+    TreeNode* convertBST(TreeNode* root) {
+        int cur = 0;
+        func(root, cur);
+        return root;
+    }
+};
+```
 
 
 
@@ -1648,9 +1740,141 @@ public:
 
 
 
+## 236.二叉树的最近公共祖先
+
+使用**后序遍历**，就只需要遍历一遍树
+
+```c++
+class Solution {
+public:
+
+    TreeNode* lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q) {
+        if(root == nullptr)
+            return nullptr;
+        
+        TreeNode* l = lowestCommonAncestor(root->left, p, q);
+        TreeNode* r = lowestCommonAncestor(root->right, p, q);
+
+        if(root == p || root == q)
+            return root;
+
+        if(l != nullptr && r != nullptr)
+            return root;
+        if(l != nullptr)
+            return l;
+        if(r != nullptr)
+            return r;
+
+        return nullptr;
+    }
+};
+```
+
+
+
+## 235.二叉搜索树的最近公共祖先
+
+
+
+```c++
+class Solution {
+public:
+    TreeNode* func(TreeNode* root, TreeNode* p, TreeNode* q) {
+        if(root == nullptr || root == p || root == q)
+            return root;
+
+        if(root->val > p->val && root->val < q->val)
+            return root;
+        
+        if(root->val < p->val)
+            return func(root->right, p, q);
+        else
+            return func(root->left, p, q);
+    }
+
+    TreeNode* lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q) {
+        if(p->val > q->val) {
+            TreeNode* tmp = p;
+            p = q;
+            q = tmp;
+        }
+
+        return func(root, p, q);
+    }
+};
+```
+
+
+
+不用交换的方法....
+
+```c++
+class Solution {
+private:
+    TreeNode* traversal(TreeNode* cur, TreeNode* p, TreeNode* q) {
+        if (cur == nullptr) return cur;
+
+        if (cur->val > p->val && cur->val > q->val) { 
+            return traversal(cur->left, p, q);
+        }
+
+        if (cur->val < p->val && cur->val < q->val) { 
+            return traversal(cur->right, p, q);
+        }
+        return cur;
+    }
+public:
+    TreeNode* lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q) {
+        return traversal(root, p, q);
+    }
+};
+```
+
+
+
+
+
 
 
 # 二叉搜索树的修改与构造
+
+
+
+## 701.二叉搜索树中的插入操作
+
+
+
+
+
+
+
+## 450.删除二叉搜索树中的节点
+
+
+
+
+
+
+
+
+
+## 669.修剪二叉搜索树
+
+
+
+
+
+
+
+
+
+
+
+## 108.将有序数组转换为二叉搜索树
+
+
+
+
 
 
 
