@@ -1860,15 +1860,141 @@ public:
 
 
 
-
-
-
-
 ## 450.删除二叉搜索树中的节点
 
+一种迭代写法：
+
+1. `find`：先寻找`cur`和`pre`，`cur`中记录需要删除的节点，`pre`中记录`cur`节点的上一个节点；
+2. `get`：把`cur`左子树和右子树合并，并返回`res`;
+3. 最后把`pre`的左子树指针或者右子树指针连接到`res`上。
+
+用到了虚拟节点`dummy`，可以在删除`root`本身是，也不同特别判断。
+
+```c++
+class Solution {
+public:
+
+    TreeNode* pre;
+    TreeNode* cur;
+
+    void find(TreeNode*& pre, TreeNode*& cur, int& key) {
+        if(cur == nullptr || cur->val == key)
+            return;
+        
+        if(cur->val < key) {
+            pre = cur;
+            cur = cur->right;
+            find(pre, cur, key);
+        }
+        else {
+            pre = cur;
+            cur = cur->left;
+            find(pre, cur, key);
+        }
+    }
+
+    TreeNode* get(TreeNode* root) {
+        TreeNode* res = root->right;
+        if(res == nullptr)
+            return root->left;
+
+        while(res->left != nullptr)
+            res = res->left;
+
+        res->left = root->left;
+        return root->right;
+    }
+
+    TreeNode* deleteNode(TreeNode* root, int key) {
+        if(root == nullptr)
+            return nullptr;
+
+        TreeNode* dummy = new TreeNode(0);
+        dummy->left = root;
+
+        pre = dummy;
+        cur = root;
+        find(pre, cur, key);
+        
+        if(cur == nullptr)
+            return dummy->left;
+
+        TreeNode* tmp = get(cur);
+
+        if(pre->left == cur) {
+            pre->left = tmp;
+        }
+        else {
+            pre->right = tmp;
+        }
+
+        return dummy->left;
+    }
+};
+```
 
 
 
+递归
+
+参考自：
+
+>作者：Terry2020
+>链接：https://leetcode-cn.com/problems/delete-node-in-a-bst/solution/miao-dong-jiu-wan-shi-liao-by-terry2020-tc0o/
+>来源：力扣（LeetCode）
+>著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+
+根据二叉搜索树的性质
+
+- 如果目标节点大于当前节点值，则去右子树中删除；
+- 如果目标节点小于当前节点值，则去左子树中删除；
+- 如果目标节点就是当前节点，分为以下三种情况：
+  - 其无左子：其右子顶替其位置，删除了该节点；
+  - 其无右子：其左子顶替其位置，删除了该节点；
+  - 其左右子节点都有：其左子树转移到其右子树的最左节点的左子树上，然后右子树顶替其位置，由此删除了该节点。
+
+想法：
+
+- 注意下面`root->right = deleteNode(root->right, key);`这种写法，`deleteNode`返回的就是上面迭代的`get`中返回的结果。按照道理来说，肯定需要被删除节点的上一个节点，用这种方式解决了。
+- 注意思考：你需要函数返回值包含了什么意义。
+
+```c++
+class Solution {
+public:
+    TreeNode* deleteNode(TreeNode* root, int key) 
+    {
+        if (root == nullptr)    return nullptr;
+        if (key > root->val)    root->right = deleteNode(root->right, key);     // 去右子树删除
+        else if (key < root->val)    root->left = deleteNode(root->left, key);  // 去左子树删除
+        else    // 当前节点就是要删除的节点
+        {
+            if (! root->left)   return root->right; // 情况1，欲删除节点无左子
+            if (! root->right)  return root->left;  // 情况2，欲删除节点无右子
+            TreeNode* node = root->right;           // 情况3，欲删除节点左右子都有 
+            while (node->left)          // 寻找欲删除节点右子树的最左节点
+                node = node->left;
+            node->left = root->left;    // 将欲删除节点的左子树成为其右子树的最左节点的左子树
+            root = root->right;         // 欲删除节点的右子顶替其位置，节点被删除
+        }
+        return root;    
+    }
+};
+
+作者：Terry2020
+链接：https://leetcode-cn.com/problems/delete-node-in-a-bst/solution/miao-dong-jiu-wan-shi-liao-by-terry2020-tc0o/
+来源：力扣（LeetCode）
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+```
+
+
+
+
+
+
+
+```c++
+
+```
 
 
 
@@ -1887,6 +2013,31 @@ public:
 
 
 ## 108.将有序数组转换为二叉搜索树
+
+
+
+```c++
+class Solution {
+public:
+
+    TreeNode* func(vector<int>& nums, int l, int r) {
+        if(l > r)
+            return nullptr;
+        int idx = l + (r - l) / 2;
+        TreeNode* root = new TreeNode(nums[idx]);
+        root->left = func(nums, l, idx - 1);
+        root->right = func(nums, idx + 1, r);
+
+        return root;
+    }
+
+    TreeNode* sortedArrayToBST(vector<int>& nums) {
+        if(nums.size() == 0)
+            return nullptr;
+        return func(nums, 0, nums.size() - 1);
+    }
+};
+```
 
 
 

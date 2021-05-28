@@ -24,41 +24,41 @@ public:
         }
     }
 
-    // TreeNode* merge(TreeNode* left, TreeNode* right) {
-    //     if(right == nullptr)
-    //         return left;
-    //     if(right->val > left->val)
+    TreeNode* get(TreeNode* root) {
+        TreeNode* res = root->right;
+        if(res == nullptr)
+            return root->left;
 
-    // }
+        while(res->left != nullptr)
+            res = res->left;
+
+        res->left = root->left;
+        return root->right;
+    }
 
     TreeNode* deleteNode(TreeNode* root, int key) {
         if(root == nullptr)
             return nullptr;
 
-        pre = nullptr;
+        TreeNode* dummy = new TreeNode(0);
+        dummy->left = root;
+
+        pre = dummy;
         cur = root;
         find(pre, cur, key);
-
+        
         if(cur == nullptr)
-            return root;
-        
-        TreeNode* tmp = cur->right;
-        if(tmp == nullptr)
-            tmp = cur->left;
-        while(tmp->left != nullptr)
-            tmp = tmp->left;
-        tmp->left = cur->left;
-        
-        if(pre == nullptr)
-            return cur->right;
-        else {
-            if(pre->left == cur){
-                pre->left = tmp;
-            }
-            else {
-                pre->right = tmp;
-            }
+            return dummy->left;
+
+        TreeNode* tmp = get(cur);
+
+        if(pre->left == cur) {
+            pre->left = tmp;
         }
-        return root;
+        else {
+            pre->right = tmp;
+        }
+
+        return dummy->left;
     }
 };
