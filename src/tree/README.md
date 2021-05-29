@@ -1979,36 +1979,34 @@ public:
         return root;    
     }
 };
-
-作者：Terry2020
-链接：https://leetcode-cn.com/problems/delete-node-in-a-bst/solution/miao-dong-jiu-wan-shi-liao-by-terry2020-tc0o/
-来源：力扣（LeetCode）
-著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
 ```
-
-
-
-
-
-
-
-```c++
-
-```
-
-
 
 
 
 ## 669.修剪二叉搜索树
 
+外强中干
 
+```c++
+class Solution {
+public:
+    TreeNode* trimBST(TreeNode* root, int low, int high) {
+        if(root == nullptr)
+            return nullptr;
 
+        if(root->val < low) {
+            return trimBST(root->right, low, high);
+        }
+        if(root->val > high) {
+            return trimBST(root->left, low, high);
+        }
 
-
-
-
-
+        root->left = trimBST(root->left, low, high);
+        root->right = trimBST(root->right, low, high);
+        return root;
+    }
+};
+```
 
 
 
