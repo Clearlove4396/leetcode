@@ -24,3 +24,4 @@ leetcode practice
 - 501
 - 236
 - 450
+- 39
