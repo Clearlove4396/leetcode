@@ -403,17 +403,114 @@ public:
 
 
 
-
-
 ## 131.分割回文串
 
+使用回溯方法。
+
+`end`可以直接替换成`s.size()`，因为一直都需要遍历到字符串的最后一个
+
+```c++
+class Solution {
+public:
+    
+    bool isHuiWen(string& s, int begin, int end) {
+        while(begin < end) {
+            if(s[begin++] != s[end--])
+                return false;
+        }
+        return true;
+    }
+
+    void backtrack(string& s, int begin, int end,
+                 vector<vector<string> >& res, vector<string>& tmp) {
+        if(begin >= end) {
+            res.push_back(tmp);
+            return;
+        }
+
+        for(int i = begin; i < end; i++) {
+            if(isHuiWen(s, begin, i)) {
+                tmp.push_back(s.substr(begin, i - begin + 1));
+                backtrack(s, i + 1, end, res, tmp);
+                tmp.pop_back();
+            }
+        }
+    }
+
+    vector<vector<string>> partition(string s) {
+        if(s.size() == 0)
+            return {};
+
+        vector<vector<string> > res;
+        vector<string> tmp;
+        backtrack(s, 0, s.size(), res, tmp);
+        return res;
+    }
+};
+```
 
 
 
 
-## 复原IP地址
 
+## 93.复原IP地址
 
+使用`count`记录点的个数。
+
+使用**右引用**来避免`path`的回溯。
+
+可以添加一个`else { break; }`，进行剪枝
+
+```c++
+class Solution {
+public:
+
+    bool isRight(string& s, int begin, int end) {
+        string st = s.substr(begin, end - begin + 1);
+        if(st[0] == '0' && st.size() != 1)
+            return false;
+        
+        int t = atoi(st.c_str());
+        if(t < 0 || t > 255)
+            return false;
+
+        return true;
+    }
+
+    void backtrack(string& s, int begin, int count, vector<string>& res, string&& path) {
+        if(count == 0) {
+            if(begin < s.size() && isRight(s, begin, s.size())) {
+                res.push_back(path + "." + s.substr(begin, s.size() - begin));
+            }
+            return;
+        }
+
+        for(int i = begin; i < s.size(); i++) {
+            if(isRight(s, begin, i)) {
+                count--;
+                if(path == "") {
+                    backtrack(s, i + 1, count, res, s.substr(begin, i - begin + 1));
+                }
+                else {
+                    backtrack(s, i + 1, count, res, path + "." + s.substr(begin, i - begin + 1));
+                }
+                count++;
+            }
+            else { break; }   // 剪枝！
+        }
+    }
+
+    vector<string> restoreIpAddresses(string s) {
+        if(s.size() < 4)
+            return {};
+
+        vector<string> res;
+        string path = "";
+        backtrack(s, 0, 3, res, "");
+        return res;
+    }
+};
+```
 
 
 
@@ -422,6 +519,20 @@ public:
 
 
 # 子集
+
+
+
+## 78.子集
+
+
+
+
+
+
+
+
+
+## 90.子集II
 
 
 

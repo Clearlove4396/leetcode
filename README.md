@@ -25,3 +25,5 @@ leetcode practice
 - 236
 - 450
 - 39
+- 131
+- 93
