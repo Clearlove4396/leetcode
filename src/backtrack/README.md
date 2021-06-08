@@ -341,14 +341,6 @@ public:
 
 
 
-
-
-
-
-
-
-
-
 ## 216.组合总和III
 
 `if(n < idx) { return; }`是一种剪枝操作
@@ -386,16 +378,6 @@ public:
     }
 };
 ```
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -524,21 +506,144 @@ public:
 
 
 
+```C++
+class Solution {
+public:
 
+    void backtrack(vector<int>& nums, vector<vector<int> >& res, vector<int>& path, int idx) {
+        if(idx >= nums.size()) {
+            return;
+        }
+        for(int i = idx; i < nums.size(); i++) {
+            path.push_back(nums[i]);
+            res.push_back(path);
+            backtrack(nums, res, path, i + 1);
+            path.pop_back();
+        }
+    }
+    vector<vector<int>> subsets(vector<int>& nums) {
+        vector<vector<int> > res;
+        vector<int> path;
 
+        backtrack(nums, res, path, 0);
+        res.push_back({});
 
+        return res;
+    }
+};
+```
 
 
 
 ## 90.子集II
 
+`if(i != 0 && nums[i - 1] == nums[i] && visited[i - 1] == false) { continue; }`用于去重。
 
+上面这种：**树层去重**
+
+```c++
+// visited[i - 1] == true，说明同一树支nums[i - 1]使用过
+// visited[i - 1] == false，说明同一树层nums[i - 1]使用过
+```
+
+
+
+![90.子集II](https://camo.githubusercontent.com/fcac8430a14f54a39935fbc43df3bf6561ed754f2b883076d97a7da250513383/68747470733a2f2f696d672d626c6f672e6373646e696d672e636e2f32303230313132343139353431313937372e706e67)
+
+
+
+要理解**树层去重**和**树枝去重**。在参考**491**题
+
+
+
+```c++
+class Solution {
+public:
+
+    void backtrack(vector<int>& nums, vector<vector<int> >& res, vector<int>& path, vector<bool>& visited, int idx) {
+        if(idx >= nums.size()) {
+            return;
+        }
+        for(int i = idx; i < nums.size(); i++) {
+            if(i != 0 && nums[i - 1] == nums[i] && visited[i - 1] == false)
+                continue;
+            path.push_back(nums[i]);
+            res.push_back(path);
+            visited[i] = true;
+            backtrack(nums, res, path, visited, i + 1);
+            visited[i] = false;
+            path.pop_back();
+        }
+    }
+
+    vector<vector<int>> subsetsWithDup(vector<int>& nums) {
+        vector<vector<int> > res;
+        vector<int> path;
+
+        sort(nums.begin(), nums.end());
+
+        vector<bool> visited(nums.size(), false);
+
+        backtrack(nums, res, path, visited, 0);
+        res.push_back({});
+
+        return res;
+    }
+};
+```
+
+
+
+**使用`set`进行树层去重**
+
+`uset`是一个局部变量，在深度遍历过程中，会重新设定，所以可以用于树层。
+
+```c++
+class Solution {
+private:
+    vector<vector<int>> result;
+    vector<int> path;
+    void backtracking(vector<int>& nums, int startIndex, vector<bool>& used) {
+        result.push_back(path);
+        unordered_set<int> uset;
+        for (int i = startIndex; i < nums.size(); i++) {
+            if (uset.find(nums[i]) != uset.end()) {
+                continue;
+            }
+            uset.insert(nums[i]);
+            path.push_back(nums[i]);
+            backtracking(nums, i + 1, used);
+            path.pop_back();
+        }
+    }
+
+public:
+    vector<vector<int>> subsetsWithDup(vector<int>& nums) {
+        result.clear();
+        path.clear();
+        vector<bool> used(nums.size(), false);
+        sort(nums.begin(), nums.end()); // 去重需要排序
+        backtracking(nums, 0, used);
+        return result;
+    }
+};
+```
 
 
 
 
 
 # 排列
+
+
+
+## 46.全排列
+
+
+
+
+
+## 47.全排列II
 
 
 
@@ -557,4 +662,136 @@ public:
 
 
 # 其他
+
+
+
+## 491.递增子序列
+
+和子集问题很像
+
+这道题使用`unordered_set`进行去重，先转化为`string`类型，因为`unordered_set`不能直接对`vector`进行去重。效率很低。
+
+```c++
+class Solution {
+public:
+
+    void backtrack(vector<int>& nums, vector<vector<int> >& res,
+                vector<int>& path, int idx, unordered_set<string>& st, string&& tmp) {
+        if(idx >= nums.size()) {
+            return;
+        }
+
+        for(int i = idx; i < nums.size(); i++) {
+
+            if(!path.empty() && nums[i] < path.back()) {
+                continue;
+            }
+            
+            path.push_back(nums[i]);
+            if(path.size() >= 2) {
+                if(st.find(tmp + "_" + to_string(nums[i])) == st.end()) {
+                    st.insert(tmp + "_" + to_string(nums[i]));
+                    res.push_back(path);
+                }
+            }
+            backtrack(nums, res, path, i + 1, st, tmp + "_" + to_string(nums[i]));
+
+            path.pop_back();
+        }
+    }
+
+    vector<vector<int>> findSubsequences(vector<int>& nums) {
+        vector<vector<int> > res;
+        vector<int> path;
+
+        unordered_set<string> st;
+
+        vector<bool> visited(nums.size(), false);
+
+        backtrack(nums, res, path, 0, st, "");
+
+        return res;
+    }
+};
+```
+
+
+
+参考一下大佬的解答：https://github.com/youngyangyang04/leetcode-master/blob/master/problems/0491.%E9%80%92%E5%A2%9E%E5%AD%90%E5%BA%8F%E5%88%97.md
+
+
+
+在图中可以看出，**同一父节点下的同层上使用过的元素就不能在使用了**
+
+![491. 递增子序列1](https://camo.githubusercontent.com/b7284140cb1fc0fb3975b57b315035795c29f13f48fd1a1cd28c6bfad89ded68/68747470733a2f2f696d672d626c6f672e6373646e696d672e636e2f32303230313132343230303232393832342e706e67)
+
+
+
+```c++
+// 版本一
+class Solution {
+private:
+    vector<vector<int>> result;
+    vector<int> path;
+    void backtracking(vector<int>& nums, int startIndex) {
+        if (path.size() > 1) {
+            result.push_back(path);
+            // 注意这里不要加return，要取树上的节点
+        }
+        unordered_set<int> uset; // 使用set对本层元素进行去重
+        for (int i = startIndex; i < nums.size(); i++) {
+            if ((!path.empty() && nums[i] < path.back())
+                    || uset.find(nums[i]) != uset.end()) {
+                    continue;
+            }
+            uset.insert(nums[i]); // 记录这个元素在本层用过了，本层后面不能再用了
+            path.push_back(nums[i]);
+            backtracking(nums, i + 1);
+            path.pop_back();
+        }
+    }
+public:
+    vector<vector<int>> findSubsequences(vector<int>& nums) {
+        result.clear();
+        path.clear();
+        backtracking(nums, 0);
+        return result;
+    }
+};
+```
+
+
+
+```c++
+// 版本二
+class Solution {
+private:
+    vector<vector<int>> result;
+    vector<int> path;
+    void backtracking(vector<int>& nums, int startIndex) {
+        if (path.size() > 1) {
+            result.push_back(path);
+        }
+        int used[201] = {0}; // 这里使用数组来进行去重操作，题目说数值范围[-100, 100]
+        for (int i = startIndex; i < nums.size(); i++) {
+            if ((!path.empty() && nums[i] < path.back())
+                    || used[nums[i] + 100] == 1) {
+                    continue;
+            }
+            used[nums[i] + 100] = 1; // 记录这个元素在本层用过了，本层后面不能再用了
+            path.push_back(nums[i]);
+            backtracking(nums, i + 1);
+            path.pop_back();
+        }
+    }
+public:
+    vector<vector<int>> findSubsequences(vector<int>& nums) {
+        result.clear();
+        path.clear();
+        backtracking(nums, 0);
+        return result;
+    }
+};
+
+```
 
