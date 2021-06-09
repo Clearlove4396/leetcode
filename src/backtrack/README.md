@@ -598,6 +598,18 @@ public:
 
 `uset`是一个局部变量，在深度遍历过程中，会重新设定，所以可以用于树层。
 
+解释一下这里需要先排序，而第`47`题不需要排序的原因。
+
+> 因为排序问题需要把所有的值都加入到集合中，子集问题只是去集合的一部分值
+>
+> 比如这个例子：
+>
+> 输入：[1,2,1]
+>
+> 输出：[[],[1],[1,2],[1,2,1],[1,1],[2],[2,1]]
+>
+> 预期结果：[[],[1],[1,1],[1,1,2],[1,2],[2]]
+
 ```c++
 class Solution {
 private:
@@ -685,13 +697,198 @@ public:
 
 ## 47.全排列II
 
+去重技巧1
 
+```c++
+class Solution {
+public:
+
+    void backtrack(vector<int>& nums, vector<vector<int> >& res, vector<int>& path, vector<bool>& visited) {
+        if(path.size() == nums.size()) {
+            res.push_back(path);
+            return;
+        }
+        for(int i = 0; i < nums.size(); i++) {
+            if(visited[i] == true || 
+                (i > 0 && nums[i - 1] == nums[i] && visited[i - 1] == false)) {
+                continue;
+            }
+            path.push_back(nums[i]);
+            visited[i] = true;
+            backtrack(nums, res, path, visited);
+            visited[i] = false;
+            path.pop_back();
+        }
+    }
+
+    vector<vector<int>> permuteUnique(vector<int>& nums) {
+        vector<vector<int> > res;
+        vector<int> path;
+        vector<bool> visited(nums.size(), false);
+
+        sort(nums.begin(), nums.end());
+
+        backtrack(nums, res, path, visited);
+
+        return res;
+    }
+};
+```
+
+
+
+去重技巧二：使用`unordered_set`去重
+
+- 在这里：`visited`只用来进行树枝去重，`unordered_set`用于树层去重。
+
+注意，这里不需要排序
+
+**思考一个问题：**
+
+- 为什么使用`unordered_set`去重时，有的需要排序，有的不需要排序。对比第`90`题
+
+```c++
+class Solution {
+public:
+
+    void backtrack(vector<int>& nums, vector<vector<int> >& res, vector<int>& path, vector<bool>& visited) {
+        if(path.size() == nums.size()) {
+            res.push_back(path);
+            return;
+        }
+        unordered_set<int> st;
+        for(int i = 0; i < nums.size(); i++) {
+            if(visited[i] == true) {
+                continue;
+            }
+            if(st.find(nums[i]) != st.end()) {
+                continue;
+            }
+            visited[i] = true;
+            path.push_back(nums[i]);
+            backtrack(nums, res, path, visited);
+            path.pop_back();
+            visited[i] = false;
+        }
+    }
+
+    vector<vector<int>> permuteUnique(vector<int>& nums) {
+        vector<vector<int> > res;
+        vector<int> path;
+        vector<bool> visited(nums.size(), false);
+
+        //sort(nums.begin(), nums.end());
+
+        backtrack(nums, res, path, visited);
+
+        return res;
+    }
+};
+```
 
 
 
 
 
 # 棋盘问题
+
+
+
+
+
+## 51.N皇后
+
+`isRight`可以精简
+
+```c++
+class Solution {
+public:
+
+    bool isRight(vector<string>& pan, int n, int i, int j) {
+        for(int c = 0; c < n; c++) {
+            if(pan[i][c] == 'Q')
+                return false;
+        }
+        for(int r = 0; r < n; r++) {
+            if(pan[r][j] == 'Q')
+                return false;
+        }
+        int c = j, r = i;
+        while(c >= 0 && r >= 0) {
+            if(pan[r--][c--] == 'Q')
+                return false;
+        }
+        c = j;
+        r = i;
+        while(c < n && r < n) {
+            if(pan[r++][c++] == 'Q')
+                return false;
+        }
+        c = j;
+        r = i;
+        while(c >= 0 && r < n) {
+            if(pan[r++][c--] == 'Q')
+                return false;
+        }
+        c = j;
+        r = i;
+        while(c < n && r >= 0) {
+            if(pan[r--][c++] == 'Q')
+                return false;
+        }
+        return true;
+    }
+
+    void backtrack(int n, int idx, vector<vector<string> >& res, vector<string>& pan) {
+        if(idx >= n) {
+            res.push_back(pan);
+            return;
+        }
+        for(int j = 0; j < n; j++) {
+            if(!isRight(pan, n, idx, j))
+                continue;
+
+            pan[idx][j] = 'Q';
+            backtrack(n, idx + 1, res, pan);
+            pan[idx][j] = '.';
+        }
+    }
+
+    vector<vector<string>> solveNQueens(int n) {
+        
+        vector<string> pan(n, string(n, '.'));
+        vector<vector<string> > res;
+        
+        backtrack(n, 0, res, pan);
+
+        return res;
+    }
+};
+```
+
+
+
+```c++
+int dir[8][2] = {{-1, -1}, {-1, 1}, {-1, 0},
+                 {1, -1}, {1, 0}, {1, 1},
+                 {0, -1}, {0, 1}};
+
+bool isRight(vector<string>& pan, int n, int i, int j) {
+    for(int d = 0; d < 8; d++) {
+        for(int r = i, c = j; r >= 0 && r < n && c >= 0 && c < n; r += dir[d][0], c += dir[d][1]) {
+            if(pan[r][c] == 'Q')
+                return false;
+        }
+    }
+    return true;
+}
+```
+
+
+
+
+
+## 37.解数独
 
 
 
@@ -834,4 +1031,10 @@ public:
 };
 
 ```
+
+
+
+
+
+## 332.重新安排行程
 
