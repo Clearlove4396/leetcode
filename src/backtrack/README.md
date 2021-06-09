@@ -502,6 +502,20 @@ public:
 
 
 
+1. 首先讨论一下为什么集合中存在重复元素时，需要排序：
+
+   > 输入：[1, 2, 1]
+   >
+   > 如果不排序，则可能出现[1(前), 2]和[2, 1(后)]这两个结果。所以为了去重，就需要排序
+
+2. 在讨论一下同层中出现相同元素时需要跳过。
+
+   > 输入：[1, 1, 2]
+   >
+   > 在遍历到后面一个1时，需要去重（即跳过continue）。这是因为由集合划分的子集是由两部分组成的，选定的“1”，和选定元素的后面部分。现在选定元素是相同的，对于后面部分，前面的选定元素的后面部分包含后面选定元素的后面部分，所以前面选定元素最后得到的结果集一定已经包含了后面选定元素得到的结果集，也就是需要去重。
+
+
+
 ## 78.子集
 
 
@@ -890,9 +904,85 @@ bool isRight(vector<string>& pan, int n, int i, int j) {
 
 ## 37.解数独
 
+先把需要填充的位置记录下来，然后对这些位置使用回溯方法尝试填充。
 
+```c++
+typedef struct node {
+    int r;
+    int c;
+    char val;
+    node(int rr, int cc, char vv): r(rr), c(cc), val(vv){}
+}Node;
 
+class Solution {
+public:
 
+    int dir[4][2] = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
+
+    bool isRight(vector<vector<char> >& board, int r, int c) {
+        int n = board.size();
+
+        for(int d = 0; d < 4; d++) {
+            int i = r, j = c;
+            i += dir[d][0];
+            j += dir[d][1];
+            for(; i >= 0 && i < n && j >= 0 && j < n; i += dir[d][0], j += dir[d][1]) {
+                if(board[i][j] == board[r][c])
+                    return false;
+            }
+        }
+
+        int rl = r / 3 * 3;
+        int rh = rl + 2;
+        int cl = c / 3 * 3;
+        int ch = cl + 2;
+
+        for(int i = rl; i <= rh; i++) {
+            for(int j = cl; j <= ch; j++) {
+                if(i == r && j == c)
+                    continue;
+                if(board[i][j] == board[r][c])
+                    return false;
+            }
+        }
+
+        return true;
+    }
+
+    bool backtrack(vector<Node>& v, vector<vector<char> >& board, int idx) {
+        if(idx >= v.size()) {
+            return true;
+        }
+        Node tmp = v[idx];
+        for(char ch = tmp.val; ch <= '9'; ch++) {
+            board[tmp.r][tmp.c] = ch;
+            if(!isRight(board, tmp.r, tmp.c)){
+                continue;
+            }
+            if(backtrack(v, board, idx + 1) == true) {
+                return true;
+            }
+        }
+        board[tmp.r][tmp.c] = '.';   //回溯
+        return false;
+    }
+
+    void solveSudoku(vector<vector<char>>& board) {
+        int n = board.size();
+        vector<Node> v;
+
+        for(int i = 0; i < n; i++) {
+            for(int j = 0; j < n; j++) {
+                if(board[i][j] == '.') {
+                    v.push_back(node(i, j, '1'));
+                }
+            }
+        }
+
+        backtrack(v, board, 0);
+    }
+};
+```
 
 
 
