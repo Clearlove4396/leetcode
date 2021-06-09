@@ -639,6 +639,46 @@ public:
 
 ## 46.全排列
 
+排列是有序的：所以`[1, 2]`和`[2, 1]`是不同的
+
+**排列**问题：
+
+`for`循环从`0`开始遍历
+
+需要一个`visited`
+
+```c++
+class Solution {
+public:
+    void backtrack(vector<int>& nums, vector<vector<int> >& res, vector<int>& path, vector<bool>& visited) {
+        if(path.size() == nums.size()) {
+            res.push_back(path);
+            return;
+        }
+        for(int i = 0; i < nums.size(); i++) {
+            if(visited[i]) {
+                continue;
+            }
+            path.push_back(nums[i]);
+            visited[i] = true;
+            backtrack(nums, res, path, visited);
+            visited[i] = false;
+            path.pop_back();
+        }
+    }
+
+    vector<vector<int>> permute(vector<int>& nums) {
+        vector<vector<int> > res;
+        vector<int> path;
+        vector<bool> visited(nums.size(), false);
+
+        backtrack(nums, res, path, visited);
+
+        return res;
+    }
+};
+```
+
 
 
 
