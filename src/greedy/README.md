@@ -374,6 +374,144 @@ public:
 
 ## 134.加油站
 
+一个简单的想法是：先确定起点`cost[idx] <= gas[idx]`，然后从此起点处出发，验证是否可行。
+
+不过这种方法最坏需要$O(n^2)$时间复杂度。
+
+```c++
+class Solution {
+public:
+
+    bool isBegin(vector<int>& gas, vector<int>& cost, int idx) {
+        int oil = 0;
+        for(int i = idx; i < gas.size(); i++) {
+            oil += gas[i];
+            oil -= cost[i];
+            if(oil < 0)
+                return false;
+        }
+        for(int i = 0; i < idx; i++) {
+            oil += gas[i];
+            oil -= cost[i];
+            if(oil < 0)
+                return false;
+        }
+        return true;
+    }
+
+    int canCompleteCircuit(vector<int>& gas, vector<int>& cost) {
+        int idx = 0;
+
+        while(idx < gas.size()) {
+            if(cost[idx] <= gas[idx] && isBegin(gas, cost, idx))
+                return idx;
+            idx++;
+        }
+        return -1;
+    }
+};
+```
+
+
+
+**贪心算法**（一次遍历）：
+
+假设现在有一个数组`gc`，定义为`gas-cost`。我现在需要找到一个点，从该点开始，加和总是正的。也就是说如果现在确定了一点起点，但是从该起点开始相加时，出现了负数，那么确定的起点不是我们要找的，此时，要从出现问题的点继续向后寻找。
+
+```c++
+class Solution {
+public:
+
+    int canCompleteCircuit(vector<int>& gas, vector<int>& cost) {
+
+        int idx = 0;
+        int oil_rest = 0;
+        for(int i = 0; i < gas.size(); i++) {
+            oil_rest += gas[i] - cost[i];
+            if(oil_rest < 0) {
+                idx = -1;   // 前面确定的idx不合法，需要重新向后寻找。
+                oil_rest = 0;   // 从下一个点寻找。
+            }
+            else if(idx == -1) {   // 加一层判断，否则idx可能一直向后移动，会出错
+                idx = i;
+            }
+        }
+
+        if(idx == -1)
+            return -1;
+        
+        for(int i = 0; i < idx; i++) {
+            oil_rest += gas[i] - cost[i];
+            if(oil_rest < 0) {
+                return -1;
+            }
+        }
+        return idx;
+    }
+};
+```
+
+
+
+上面的代码还可以继续优化，优化的点是：我们有没有必要在确定`idx`之后，回过头判断`0~idx`这段路程的合法性？？？
+
+```c++
+for(int i = 0; i < idx; i++) {
+    oil_rest += gas[i] - cost[i];
+    if(oil_rest < 0) {
+        return -1;
+    }
+}
+```
+
+可以优化成下面的代码：
+
+`gc_cha`表示所有的“油”是否足够跑完所有的“路”。
+
+为什么这种方法可行能？
+
+抽象一下问题（在`gc`的基础上）：
+
+假设`gc`的和是`a`，确定的点`idx`是`b`，问：是否存在一点`c`，使得`b+c<0`？？
+
+![image-20210619175115392](D:\study\github\leetcode\src\greedy\image\1.png)
+
+答：这一点不存在。证明如下：
+
+![image-20210619175423992](D:\study\github\leetcode\src\greedy\image\2.png)
+
+可以看出，此时`d>0`，但是如果`d>0`成立，那么我们找到的`idx`点一定在`d`处，而不是在`b`处。
+
+```c++
+class Solution {
+public:
+
+    int canCompleteCircuit(vector<int>& gas, vector<int>& cost) {
+
+        int idx = 0;
+        int oil_rest = 0;
+        int gc_cha = 0;
+        for(int i = 0; i < gas.size(); i++) {
+            gc_cha = gc_cha + gas[i] - cost[i];
+            oil_rest += gas[i] - cost[i];
+            if(oil_rest < 0) {
+                idx = -1;
+                oil_rest = 0;
+            }
+            else if(idx == -1) {
+                idx = i;
+            }
+        }
+
+        return gc_cha >= 0? idx: -1;
+    }
+};
+```
+
+
+
+总结一下此题贪心算法（copy别人的。。。）：**局部最优：当前累加oil_rest[j]的和curSum一旦小于0，起始位置至少要是j+1，因为从j开始一定不行。全局最优：找到可以跑一圈的起始位置**。
+
 
 
 
