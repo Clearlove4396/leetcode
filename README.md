@@ -12,6 +12,7 @@ leetcode practice
 - 491
 - 332
 - 376
+- 45
 
 # 可以在刷一次的题目
 - 904
@@ -31,3 +32,4 @@ leetcode practice
 - 131
 - 93
 - 491
+- 45
