@@ -119,9 +119,45 @@ public:
 
 ## 860.柠檬水找零
 
+贪心：对于20元的，先选择10的找给客户。因为5块钱比10块钱用处大，既可以找10元用户，又可以找20用户。
 
+局部最优：遇到账单20，优先消耗美元10，完成本次找零。全局最优：完成全部账单的找零。
 
+```c++
+class Solution {
+public:
+    bool lemonadeChange(vector<int>& bills) {
+        vector<int> nums(11, 0);
 
+        for(int i = 0; i < bills.size(); i++) {
+            if(bills[i] == 5) {
+                nums[5]++;
+            }
+            else if(bills[i] == 10) {
+                if(nums[5] == 0)
+                    return false;
+
+                nums[5]--;
+                nums[10]++;
+            }
+            else {
+                if(nums[5] == 0) 
+                    return false;
+
+                int t = 15;
+                if(nums[10] != 0) {   // 贪心
+                    t -= 10;
+                    nums[10]--;
+                }
+                if(nums[5] < (t / 5))
+                    return false;
+                nums[5] -= (t / 5);
+            }
+        }
+        return true;
+    }
+};
+```
 
 
 
@@ -234,11 +270,79 @@ public:
 
 
 
-### 135.分发糖果
+### 135.分发糖果*
+
+参考自：https://github.com/youngyangyang04/leetcode-master/blob/master/problems/0135.%E5%88%86%E5%8F%91%E7%B3%96%E6%9E%9C.md
+
+```c++
+class Solution {
+public:
+    int candy(vector<int>& ratings) {
+
+        vector<int> t(ratings.size(), 1);
+
+        for(int i = 1; i < ratings.size(); i++) {
+            if(ratings[i] > ratings[i - 1])
+                t[i] = t[i - 1] + 1;
+        }
+
+        for(int i = ratings.size() - 2; i >= 0; i--) {
+            if(ratings[i] > ratings[i + 1])
+                t[i] = max(t[i], t[i + 1] + 1);
+        }
+
+        int res = 0;
+        for(int i = 0; i < ratings.size(); i++) {
+            res += t[i];
+        }
+        
+        return res;
+    }
+};
+```
 
 
 
 ### 406.根据身高重建队列
+
+先排序（身高从高到低，次序从小到大），仔细思考一下，这样排序最合理。然后从前向后遍历。**遍历到`i`时，前面的人的身高必定大于等于`i`**，此时`i[1]`就是`i`应该在的位置。
+
+
+
+遇到两个维度权衡的时候，一定要先确定一个维度，再确定另一个维度。
+
+**如果两个维度一起考虑一定会顾此失彼**。
+
+
+
+**局部最优：优先按身高高的people的k来插入。插入操作过后的people满足队列属性**
+
+**全局最优：最后都做完插入操作，整个队列满足题目队列属性**
+
+```c++
+class Solution {
+public:
+    static bool cmp(vector<int>& a, vector<int>& b) {
+        if(a[0] == b[0])
+            return a[1] < b[1];
+        return a[0] > b[0];
+    }
+
+    vector<vector<int>> reconstructQueue(vector<vector<int>>& people) {
+        sort(people.begin(), people.end(), cmp);
+
+        for(int i = 1; i < people.size(); i++) {
+            auto t = people[i];
+            int begin = people[i][1];
+            for(int j = i - 1; j >= begin; j--) {
+                people[j + 1] = people[j];
+            }
+            people[begin] = t;
+        }
+        return people;
+    }
+};
+```
 
 
 
